@@ -38,7 +38,15 @@ public abstract class BaseBuilder {
 
   public BaseBuilder(Configuration configuration) {
     this.configuration = configuration;
+    /**
+     * 映射Map<String, Class<?>> typeAliases
+     * 1.java别名和类型
+     * 2.new configuration时候 配置别名和类 eg: "SLF4J"->Slf4jImpl.class
+     * */
     this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
+    /**
+     * 映射 Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap
+     * */
     this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
   }
 

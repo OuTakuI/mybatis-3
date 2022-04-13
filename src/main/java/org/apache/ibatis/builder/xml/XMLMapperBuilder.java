@@ -91,8 +91,14 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    /**
+     * configuration中set(loadedResources)判断是否被加载
+     */
     if (!configuration.isResourceLoaded(resource)) {
       configurationElement(parser.evalNode("/mapper"));
+      /**
+       * 添加表示已被加载   ===读取ing===
+       */
       configuration.addLoadedResource(resource);
       bindMapperForNamespace();
     }

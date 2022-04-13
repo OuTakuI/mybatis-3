@@ -181,6 +181,9 @@ public class Configuration {
     this.environment = environment;
   }
 
+  /**
+   *  typeAliasRegistry 中 hashmap typeAliases 注册类型别名
+   */
   public Configuration() {
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);

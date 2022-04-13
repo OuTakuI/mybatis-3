@@ -208,10 +208,16 @@ public class XPathParser {
   }
 
   public XNode evalNode(String expression) {
+    /**
+     * 根据之前构建的document对象，校验、解析
+     */
     return evalNode(document, expression);
   }
 
   public XNode evalNode(Object root, String expression) {
+    /**
+     * root = document
+     */
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {
       return null;

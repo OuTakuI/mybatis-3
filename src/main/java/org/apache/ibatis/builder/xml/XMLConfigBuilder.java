@@ -67,6 +67,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(Reader reader, String environment, Properties props) {
+    /**
+     * 一、构建XMLConfigBuilder
+     * 二、new XPathParser(reader, true, props, new XMLMapperEntityResolver())
+     * 构建XPathParser对象
+     * 1.设置entityResolver(实体解析器)、是否验证(validation)、props
+     * 2.设置解析document对象(设置entityResolver、validation)
+     */
     this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
@@ -83,6 +90,12 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
+    /**
+     * 初始化 config typeAliasRegistry typeHandlerRegistry
+     * 类型别名
+     * java->jdbc类型映射
+     *     |->handler eg:StringTypeHandler
+     */
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
     this.configuration.setVariables(props);
@@ -95,7 +108,14 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
+    /**
+     * 防止重复解析
+     */
     parsed = true;
+    /**
+     * 1.parser.evalNode xmlEntityResolver校验再解析
+     * 2.根节点开始解析各个节点
+     */
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
@@ -103,20 +123,38 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
+      /**
+       * 解析合并configuration的variables
+       * 设置到 XPathParser和configuration 中的variables
+       */
       propertiesElement(root.evalNode("properties"));
+      /**
+       * settings 标签中的配置加载到 configuration  反射的方式
+       */
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      /**
+       * 解析节点都放入configuration中
+       */
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
+      /**
+       * 1.创建datasource
+       * 2.创建transactionManager
+       * 以上统一封装到configuration中的environment
+       */
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlerElement(root.evalNode("typeHandlers"));
+      /**
+       * 解析mapper
+       */
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -372,9 +410,15 @@ public class XMLConfigBuilder extends BaseBuilder {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          /*获取mapper xml文件*/
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
+              /**
+               * 解析提前准备
+               * 1.构建解析器 XPathParser
+               * 2.配置 Configuration(加载类型别名，类型handler，配置其他变量 eg: parsed=false)
+               */
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
               mapperParser.parse();
             }
